@@ -1,12 +1,9 @@
-package com.questly.questly_backend.controller;
+package com.questly.questly_backend.model.LatLong;
 
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
-import com.questly.questly_backend.service.LatLongService;
-import com.questly.questly_backend.entity.LatLong;
-import com.questly.questly_backend.dto.LatLongDTO;
 
 import java.util.List;
 

@@ -1,4 +1,4 @@
-package com.questly.questly_backend.dto;
+package com.questly.questly_backend.model.LatLong;
 
 import lombok.AllArgsConstructor;
 import lombok.Data;

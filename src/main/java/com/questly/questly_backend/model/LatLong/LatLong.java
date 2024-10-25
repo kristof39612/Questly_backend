@@ -1,4 +1,4 @@
-package com.questly.questly_backend.entity;
+package com.questly.questly_backend.model.LatLong;
 
 import lombok.AllArgsConstructor;
 import lombok.Data;
@@ -10,7 +10,7 @@ import jakarta.persistence.*;
 @NoArgsConstructor
 @AllArgsConstructor
 @Entity
-@Table(name = "latlong")
+@Embeddable
 public class LatLong {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)

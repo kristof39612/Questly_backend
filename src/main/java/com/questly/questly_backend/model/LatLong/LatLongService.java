@@ -1,17 +1,16 @@
-package com.questly.questly_backend.service;
+package com.questly.questly_backend.model.LatLong;
 
-import lombok.RequiredArgsConstructor;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
-import com.questly.questly_backend.repository.LatLongRepository;
-import com.questly.questly_backend.entity.LatLong;
-import com.questly.questly_backend.dto.LatLongDTO;
 
 import java.util.List;
 
 @Service
-@RequiredArgsConstructor
 public class LatLongService {
     private final LatLongRepository latLongRepository;
+
+    @Autowired
+    public LatLongService(LatLongRepository latLongRepository) {this.latLongRepository = latLongRepository;}
 
     public List<LatLong> findAll() {
         return latLongRepository.findAll();
