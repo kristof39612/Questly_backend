@@ -2,7 +2,6 @@ package com.questly.questly_backend.model.Task;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
-import java.util.Optional;
 
 @Service
 public class TaskService {
@@ -18,8 +17,10 @@ public class TaskService {
         return mapToDTO(savedTask);
     }
 
-    public Optional<TaskDTO> getTaskById(String id) {
-        return taskRepository.findById(id).map(this::mapToDTO);
+    public TaskDTO getTaskById(String id) {
+        Task task = taskRepository.findById(id)
+            .orElseThrow(() -> new RuntimeException("TaskPoint not found"));
+        return mapToDTO(task);
     }
 
     private TaskDTO mapToDTO(Task task) {

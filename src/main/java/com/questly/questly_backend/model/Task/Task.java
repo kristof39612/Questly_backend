@@ -11,10 +11,12 @@ import jakarta.persistence.*;
 public abstract class Task {
 
     @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @Column(name = "task_id")
     private String id;
+
     private int pointsForCompletion;
 
-    // Constructor
     public Task(String id, int pointsForCompletion) {
         this.id = id;
         this.pointsForCompletion = pointsForCompletion;

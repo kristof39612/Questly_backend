@@ -9,13 +9,8 @@ import jakarta.persistence.*;
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
-@Entity
 @Embeddable
 public class LatLong {
-    @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long id;
-
     private float lat;
     private float lng;
 }
