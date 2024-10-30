@@ -1,6 +1,7 @@
 package com.questly.questly_backend.model.TaskPoint;
 
 import com.questly.questly_backend.model.LatLong.LatLong;
+import com.questly.questly_backend.model.Task.TaskDTO;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
@@ -8,10 +9,11 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 public class TaskPointDTO {
     private Long id;
-    private String taskId;
+    private String title;
+    private TaskDTO task;
     private TaskStatus status;
     private LatLong location;
-    private String authorID;
+    private String authorUserId;
     private float rating;
 }
 

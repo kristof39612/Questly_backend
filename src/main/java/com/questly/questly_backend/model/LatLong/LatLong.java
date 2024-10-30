@@ -11,6 +11,6 @@ import jakarta.persistence.*;
 @AllArgsConstructor
 @Embeddable
 public class LatLong {
-    private float lat;
-    private float lng;
+    private float latitude;
+    private float longitude;
 }

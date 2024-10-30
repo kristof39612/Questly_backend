@@ -13,15 +13,16 @@ public class SingleChoiceTask extends Task {
 
     private String question;
 
-    private String[] answers;
+    private String[] choices;
 
     private int correctAnswer;
 
-    public SingleChoiceTask(String id, int pointsForCompletion, String question, String[] answers, int correctAnswer) {
-        super(id, pointsForCompletion);
+    public SingleChoiceTask(String id, int pointsForCompletion, String question, String[] choices, int correctAnswer) {
+        super(pointsForCompletion);
         this.question = question;
-        this.answers = answers;
+        this.choices = choices;
         this.correctAnswer = correctAnswer;
+        this.setType("SingleChoiceTask");
     }
 }
 

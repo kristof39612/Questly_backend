@@ -15,9 +15,10 @@ public class TextPromptTask extends Task {
     private String answer;
 
     public TextPromptTask(String id, int pointsForCompletion, String question, String answer) {
-        super(id, pointsForCompletion);
+        super(pointsForCompletion);
         this.question = question;
         this.answer = answer;
+        this.setType("TextPromptTask");
     }
 }
 

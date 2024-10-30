@@ -6,6 +6,6 @@ import lombok.EqualsAndHashCode;
 @Data
 public class SingleChoiceTaskDTO extends TaskDTO {
     private String question;
-    private String[] answers;
+    private String[] choices;
     private int correctAnswer;
 }

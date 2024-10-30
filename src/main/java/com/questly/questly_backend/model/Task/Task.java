@@ -12,13 +12,12 @@ public abstract class Task {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    @Column(name = "task_id")
-    private String id;
+    private Long id;
+    private String type;
 
     private int pointsForCompletion;
 
-    public Task(String id, int pointsForCompletion) {
-        this.id = id;
+    public Task(int pointsForCompletion) {
         this.pointsForCompletion = pointsForCompletion;
     }
 }

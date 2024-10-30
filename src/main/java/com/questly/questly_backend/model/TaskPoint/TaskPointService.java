@@ -1,9 +1,11 @@
 package com.questly.questly_backend.model.TaskPoint;
 
-import com.questly.questly_backend.model.Task.Task;
-import com.questly.questly_backend.model.Task.TaskRepository;
+import com.questly.questly_backend.model.LatLong.LatLong;
+import com.questly.questly_backend.model.Task.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+
+import java.util.List;
 
 @Service
 public class TaskPointService {
@@ -18,44 +20,123 @@ public class TaskPointService {
     }
 
     public TaskPointDTO saveTaskPoint(TaskPointDTO taskPointDTO) {
-        TaskPoint taskPoint = mapToEntity(taskPointDTO);
+        // Map and save Task entity
+        Task task = mapTaskDTOToEntity(taskPointDTO.getTask());
+        task = taskRepository.save(task);
+
+        // Map LatLong entity
+        LatLong latLong = new LatLong();
+        latLong.setLatitude(taskPointDTO.getLocation().getLatitude());
+        latLong.setLongitude(taskPointDTO.getLocation().getLongitude());
+
+        // Create TaskPoint with saved IDs
+        TaskPoint taskPoint = new TaskPoint();
+        //taskPoint.setId(taskPointDTO.getId());
+        taskPoint.setTitle(taskPointDTO.getTitle());
+        taskPoint.setTaskId(task.getId());
+        taskPoint.setLocation(latLong);
+        taskPoint.setStatus(taskPointDTO.getStatus());
+        taskPoint.setAuthorUserId(taskPointDTO.getAuthorUserId());
+        taskPoint.setRating(taskPointDTO.getRating());
+
         TaskPoint savedTaskPoint = taskPointRepository.save(taskPoint);
         return mapToDTO(savedTaskPoint);
     }
 
-    private TaskPoint mapToEntity(TaskPointDTO dto) {
-        TaskPoint taskPoint = new TaskPoint();
-        taskPoint.setAuthorID(dto.getAuthorID());
-        taskPoint.setLocation(dto.getLocation());
-
-        Task task = fetchTaskById(dto.getTaskId());
-        taskPoint.setTask(task);
-        return taskPoint;
-    }
-
     private TaskPointDTO mapToDTO(TaskPoint taskPoint) {
         TaskPointDTO dto = new TaskPointDTO();
-        dto.setId(taskPoint.getId());
+        //dto.setId(taskPoint.getId());
+        dto.setTitle(taskPoint.getTitle());
         dto.setStatus(taskPoint.getStatus());
         dto.setRating(taskPoint.getRating());
-        dto.setAuthorID(taskPoint.getAuthorID());
+        dto.setAuthorUserId(taskPoint.getAuthorUserId());
         dto.setLocation(taskPoint.getLocation());
-
-        if (taskPoint.getTask() != null) {
-            dto.setTaskId(taskPoint.getTask().getId());
-        }
+        dto.setTask(getTaskById(taskPoint.getTaskId()));
         return dto;
     }
 
-    private Task fetchTaskById(String taskId) {
-        return taskRepository.findById(taskId)
+    private TaskDTO getTaskById(Long taskId) {
+        Task task = taskRepository.findById(taskId)
                 .orElseThrow(() -> new RuntimeException("Task not found"));
+        return mapTaskEntityToDTO(task);
     }
 
-    public TaskPointDTO getTaskPointById(String taskPointId) {
+    public TaskPointDTO getTaskPointById(Long taskPointId) {
         TaskPoint taskPoint = taskPointRepository.findById(taskPointId)
                 .orElseThrow(() -> new RuntimeException("TaskPoint not found"));
         return mapToDTO(taskPoint);
     }
+
+    public List<TaskPointDTO> getAllTaskPoints() {
+        return taskPointRepository.findAll().stream()
+                .map(this::mapToDTO)
+                .toList();
+    }
+
+    private Task mapTaskDTOToEntity(TaskDTO taskDTO) {
+        Task task;
+
+        //jelenleg itt van gond valamiert, a type null
+        if(taskDTO.getType() == null) { throw new RuntimeException("TaskDTO type is null"); }
+
+        switch (taskDTO.getType()) {
+            case "GoToPointTask" -> {
+                task = new GoToPointTask();
+                GoToPointTaskDTO goToPointTaskDTO = (GoToPointTaskDTO) taskDTO; // Cast to specific DTO
+                ((GoToPointTask) task).setWhere(goToPointTaskDTO.getWhere());
+            }
+            case "SingleChoiceTask" -> {
+                task = new SingleChoiceTask();
+                SingleChoiceTaskDTO singleChoiceTaskDTO = (SingleChoiceTaskDTO) taskDTO; // Cast to specific DTO
+                ((SingleChoiceTask) task).setQuestion(singleChoiceTaskDTO.getQuestion());
+                ((SingleChoiceTask) task).setChoices(singleChoiceTaskDTO.getChoices());
+                ((SingleChoiceTask) task).setCorrectAnswer(singleChoiceTaskDTO.getCorrectAnswer());
+            }
+            case "TextPromptTask" -> {
+                task = new TextPromptTask();
+                TextPromptTaskDTO textPromptTaskDTO = (TextPromptTaskDTO) taskDTO; // Cast to specific DTO
+                ((TextPromptTask) task).setQuestion(textPromptTaskDTO.getQuestion());
+                ((TextPromptTask) task).setAnswer(textPromptTaskDTO.getAnswer());
+            }
+            default -> throw new IllegalArgumentException("Unknown task type: " + taskDTO.getType());
+        }
+
+        //task.setId(taskDTO.getId());
+        task.setPointsForCompletion(taskDTO.getPointsForCompletion());
+
+        return task;
+    }
+
+
+    private TaskDTO mapTaskEntityToDTO(Task task) {
+        switch (task) {
+            case GoToPointTask goToPointTask -> {
+                GoToPointTaskDTO dto = new GoToPointTaskDTO();
+                dto.setId(goToPointTask.getId());
+                dto.setPointsForCompletion(goToPointTask.getPointsForCompletion());
+                dto.setWhere(goToPointTask.getWhere());
+                return dto;
+            }
+            case SingleChoiceTask singleChoiceTask -> {
+                SingleChoiceTaskDTO dto = new SingleChoiceTaskDTO();
+                dto.setId(singleChoiceTask.getId());
+                dto.setPointsForCompletion(singleChoiceTask.getPointsForCompletion());
+                dto.setQuestion(singleChoiceTask.getQuestion());
+                dto.setChoices(singleChoiceTask.getChoices());
+                dto.setCorrectAnswer(singleChoiceTask.getCorrectAnswer());
+                return dto;
+            }
+            case TextPromptTask textPromptTask -> {
+                TextPromptTaskDTO dto = new TextPromptTaskDTO();
+                dto.setId(textPromptTask.getId());
+                dto.setPointsForCompletion(textPromptTask.getPointsForCompletion());
+                dto.setQuestion(textPromptTask.getQuestion());
+                dto.setAnswer(textPromptTask.getAnswer());
+                return dto;
+            }
+            default -> throw new IllegalArgumentException("Unknown task type: " + task.getType());
+        }
+    }
+
 }
 
