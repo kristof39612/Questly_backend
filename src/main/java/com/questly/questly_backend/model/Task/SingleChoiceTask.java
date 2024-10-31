@@ -22,7 +22,6 @@ public class SingleChoiceTask extends Task {
         this.question = question;
         this.choices = choices;
         this.correctAnswer = correctAnswer;
-        this.setType("SingleChoiceTask");
     }
 }
 

@@ -18,7 +18,6 @@ public class TextPromptTask extends Task {
         super(pointsForCompletion);
         this.question = question;
         this.answer = answer;
-        this.setType("TextPromptTask");
     }
 }
 

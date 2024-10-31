@@ -17,7 +17,6 @@ public class GoToPointTask extends Task {
 
     public GoToPointTask(String id, int pointsForCompletion, LatLong where) {
         super(pointsForCompletion);
-        this.setType("GoToPointTask");
         this.where = where;
     }
 }

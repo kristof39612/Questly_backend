@@ -3,7 +3,9 @@ package com.questly.questly_backend.model.TaskPoint;
 import com.questly.questly_backend.model.LatLong.LatLong;
 import com.questly.questly_backend.model.Task.*;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
+import org.springframework.web.server.ResponseStatusException;
 
 import java.util.List;
 
@@ -45,7 +47,7 @@ public class TaskPointService {
 
     private TaskPointDTO mapToDTO(TaskPoint taskPoint) {
         TaskPointDTO dto = new TaskPointDTO();
-        //dto.setId(taskPoint.getId());
+        dto.setId(taskPoint.getId());
         dto.setTitle(taskPoint.getTitle());
         dto.setStatus(taskPoint.getStatus());
         dto.setRating(taskPoint.getRating());
@@ -63,7 +65,7 @@ public class TaskPointService {
 
     public TaskPointDTO getTaskPointById(Long taskPointId) {
         TaskPoint taskPoint = taskPointRepository.findById(taskPointId)
-                .orElseThrow(() -> new RuntimeException("TaskPoint not found"));
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "TaskPoint not found"));
         return mapToDTO(taskPoint);
     }
 
@@ -76,29 +78,24 @@ public class TaskPointService {
     private Task mapTaskDTOToEntity(TaskDTO taskDTO) {
         Task task;
 
-        //jelenleg itt van gond valamiert, a type null
-        if(taskDTO.getType() == null) { throw new RuntimeException("TaskDTO type is null"); }
 
-        switch (taskDTO.getType()) {
-            case "GoToPointTask" -> {
+        switch (taskDTO) {
+            case GoToPointTaskDTO goToPointTaskDTO-> {
                 task = new GoToPointTask();
-                GoToPointTaskDTO goToPointTaskDTO = (GoToPointTaskDTO) taskDTO; // Cast to specific DTO
                 ((GoToPointTask) task).setWhere(goToPointTaskDTO.getWhere());
             }
-            case "SingleChoiceTask" -> {
+            case SingleChoiceTaskDTO singleChoiceTaskDTO -> {
                 task = new SingleChoiceTask();
-                SingleChoiceTaskDTO singleChoiceTaskDTO = (SingleChoiceTaskDTO) taskDTO; // Cast to specific DTO
                 ((SingleChoiceTask) task).setQuestion(singleChoiceTaskDTO.getQuestion());
                 ((SingleChoiceTask) task).setChoices(singleChoiceTaskDTO.getChoices());
                 ((SingleChoiceTask) task).setCorrectAnswer(singleChoiceTaskDTO.getCorrectAnswer());
             }
-            case "TextPromptTask" -> {
+            case TextPromptTaskDTO textPromptTaskDTO -> {
                 task = new TextPromptTask();
-                TextPromptTaskDTO textPromptTaskDTO = (TextPromptTaskDTO) taskDTO; // Cast to specific DTO
                 ((TextPromptTask) task).setQuestion(textPromptTaskDTO.getQuestion());
                 ((TextPromptTask) task).setAnswer(textPromptTaskDTO.getAnswer());
             }
-            default -> throw new IllegalArgumentException("Unknown task type: " + taskDTO.getType());
+            default -> throw new IllegalArgumentException("Unknown task type");
         }
 
         //task.setId(taskDTO.getId());
@@ -115,6 +112,7 @@ public class TaskPointService {
                 dto.setId(goToPointTask.getId());
                 dto.setPointsForCompletion(goToPointTask.getPointsForCompletion());
                 dto.setWhere(goToPointTask.getWhere());
+                //dto.setType("GoToPointTask");
                 return dto;
             }
             case SingleChoiceTask singleChoiceTask -> {
@@ -124,6 +122,7 @@ public class TaskPointService {
                 dto.setQuestion(singleChoiceTask.getQuestion());
                 dto.setChoices(singleChoiceTask.getChoices());
                 dto.setCorrectAnswer(singleChoiceTask.getCorrectAnswer());
+                //dto.setType("SingleChoiceTask");
                 return dto;
             }
             case TextPromptTask textPromptTask -> {
@@ -132,11 +131,10 @@ public class TaskPointService {
                 dto.setPointsForCompletion(textPromptTask.getPointsForCompletion());
                 dto.setQuestion(textPromptTask.getQuestion());
                 dto.setAnswer(textPromptTask.getAnswer());
+                //dto.setType("TextPromptTask");
                 return dto;
             }
-            default -> throw new IllegalArgumentException("Unknown task type: " + task.getType());
+            default -> throw new IllegalArgumentException("Unknown task type");
         }
     }
-
 }
-

@@ -15,6 +15,5 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 public abstract class TaskDTO {
     private Long id;
-    private String type;
     private int pointsForCompletion;
 }

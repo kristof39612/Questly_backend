@@ -20,8 +20,9 @@ public class TaskPointController {
     }
 
     @GetMapping("/{id}")
-    public TaskPointDTO getTaskPoint(@PathVariable Long id) {
-        return taskPointService.getTaskPointById(id);
+    public ResponseEntity<TaskPointDTO> getTaskPoint(@PathVariable Long id) {
+        TaskPointDTO taskPointDTO =  taskPointService.getTaskPointById(id);
+        return ResponseEntity.ok(taskPointDTO);
     }
 
     @GetMapping

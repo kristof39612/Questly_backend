@@ -2,6 +2,8 @@ package com.questly.questly_backend.model.TaskPoint;
 
 import com.questly.questly_backend.model.LatLong.LatLong;
 import com.questly.questly_backend.model.Task.TaskDTO;
+import jakarta.persistence.EnumType;
+import jakarta.persistence.Enumerated;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
