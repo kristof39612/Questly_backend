@@ -36,11 +36,11 @@ public class UserService {
         return userRepository.save(user);
     }
 
-    public Integer getLoggedInUserId(){
+    public Long getLoggedInUserId(){
         return userRepository.findByEmail(getEmailFromSecurityContext()).orElseThrow().getId();
     }
 
-    public User getClientById(Integer id){
+    public User getClientById(Long id){
         return userRepository.findById(id).orElseThrow();
     }
 
