@@ -2,6 +2,9 @@ package com.questly.questly_backend.model.TaskPoint;
 
 import com.questly.questly_backend.model.LatLong.LatLong;
 import com.questly.questly_backend.model.Task.*;
+import com.questly.questly_backend.model.User.Role;
+import com.questly.questly_backend.model.User.User;
+import com.questly.questly_backend.model.User.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
@@ -14,11 +17,13 @@ public class TaskPointService {
 
     private final TaskPointRepository taskPointRepository;
     private final TaskRepository taskRepository;
+    private final UserService userService;
 
     @Autowired
-    public TaskPointService(TaskPointRepository taskPointRepository, TaskRepository taskRepository) {
+    public TaskPointService(TaskPointRepository taskPointRepository, TaskRepository taskRepository, UserService userService) {
         this.taskPointRepository = taskPointRepository;
         this.taskRepository = taskRepository;
+        this.userService = userService;
     }
 
     public TaskPointDTO saveTaskPoint(TaskPointDTO taskPointDTO) {
@@ -57,6 +62,11 @@ public class TaskPointService {
         return dto;
     }
 
+    private void checkAdminPermission(){
+        User user = userService.getLoggedInUser();
+        if(user.getRole() != Role.ADMIN) throw new ResponseStatusException(HttpStatus.FORBIDDEN);
+    }
+
     private TaskDTO getTaskById(Long taskId) {
         Task task = taskRepository.findById(taskId)
                 .orElseThrow(() -> new RuntimeException("Task not found"));
@@ -76,12 +86,30 @@ public class TaskPointService {
     }
 
     public TaskPointDTO updateStatus(Long id, TaskStatus status) {
+
+        checkAdminPermission();
+
         TaskPoint taskPoint = taskPointRepository.findById(id)
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "TaskPoint not found"));
         taskPoint.setStatus(status);
         TaskPoint updatedTaskPoint = taskPointRepository.save(taskPoint);
         return mapToDTO(updatedTaskPoint);
     }
+
+    public void deleteTaskPoint(Long id) {
+
+        checkAdminPermission();
+
+        TaskPoint taskPoint = taskPointRepository.findById(id)
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "TaskPoint not found"));
+
+        // Delete the corresponding Task
+        taskRepository.deleteById(taskPoint.getTaskId());
+
+        // Now delete the TaskPoint
+        taskPointRepository.deleteById(id);
+    }
+
 
     private Task mapTaskDTOToEntity(TaskDTO taskDTO) {
         Task task;

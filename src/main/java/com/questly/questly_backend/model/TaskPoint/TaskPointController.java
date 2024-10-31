@@ -25,6 +25,12 @@ public class TaskPointController {
         return ResponseEntity.ok(taskPointDTO);
     }
 
+    @GetMapping
+    public ResponseEntity<List<TaskPointDTO>> getAllTaskPoints() {
+        List<TaskPointDTO> taskPoints = taskPointService.getAllTaskPoints();
+        return ResponseEntity.ok(taskPoints);
+    }
+
     @PatchMapping("/{id}/approve")
     public ResponseEntity<TaskPointDTO> approveTaskPoint(@PathVariable Long id) {
         TaskPointDTO updatedTaskPoint = taskPointService.updateStatus(id, TaskStatus.APPROVED);
@@ -37,10 +43,11 @@ public class TaskPointController {
         return ResponseEntity.ok(updatedTaskPoint);
     }
 
-    @GetMapping
-    public ResponseEntity<List<TaskPointDTO>> getAllTaskPoints() {
-        List<TaskPointDTO> taskPoints = taskPointService.getAllTaskPoints();
-        return ResponseEntity.ok(taskPoints);
+    @DeleteMapping("/{id}")
+    public ResponseEntity<Void> deleteTaskPoint(@PathVariable Long id) {
+        taskPointService.deleteTaskPoint(id);
+        return ResponseEntity.noContent().build();
     }
+
 }
 
