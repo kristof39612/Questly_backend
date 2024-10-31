@@ -62,6 +62,11 @@ public class TaskPointService {
         return dto;
     }
 
+    private void checkAdminPermission(){
+        User user = userService.getLoggedInUser();
+        if(user.getRole() != Role.ADMIN) throw new ResponseStatusException(HttpStatus.FORBIDDEN);
+    }
+
     private TaskDTO getTaskById(Long taskId) {
         Task task = taskRepository.findById(taskId)
                 .orElseThrow(() -> new RuntimeException("Task not found"));
@@ -81,8 +86,8 @@ public class TaskPointService {
     }
 
     public TaskPointDTO updateStatus(Long id, TaskStatus status) {
-        User user = userService.getLoggedInUser();
-        if(user.getRole() != Role.ADMIN) throw new ResponseStatusException(HttpStatus.FORBIDDEN);
+
+        checkAdminPermission();
 
         TaskPoint taskPoint = taskPointRepository.findById(id)
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "TaskPoint not found"));
@@ -90,6 +95,21 @@ public class TaskPointService {
         TaskPoint updatedTaskPoint = taskPointRepository.save(taskPoint);
         return mapToDTO(updatedTaskPoint);
     }
+
+    public void deleteTaskPoint(Long id) {
+
+        checkAdminPermission();
+
+        TaskPoint taskPoint = taskPointRepository.findById(id)
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "TaskPoint not found"));
+
+        // Delete the corresponding Task
+        taskRepository.deleteById(taskPoint.getTaskId());
+
+        // Now delete the TaskPoint
+        taskPointRepository.deleteById(id);
+    }
+
 
     private Task mapTaskDTOToEntity(TaskDTO taskDTO) {
         Task task;
