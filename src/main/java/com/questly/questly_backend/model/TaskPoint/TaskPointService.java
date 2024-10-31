@@ -2,6 +2,9 @@ package com.questly.questly_backend.model.TaskPoint;
 
 import com.questly.questly_backend.model.LatLong.LatLong;
 import com.questly.questly_backend.model.Task.*;
+import com.questly.questly_backend.model.User.Role;
+import com.questly.questly_backend.model.User.User;
+import com.questly.questly_backend.model.User.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
@@ -14,47 +17,25 @@ public class TaskPointService {
 
     private final TaskPointRepository taskPointRepository;
     private final TaskRepository taskRepository;
+    private final UserService userService;
 
     @Autowired
-    public TaskPointService(TaskPointRepository taskPointRepository, TaskRepository taskRepository) {
+    public TaskPointService(TaskPointRepository taskPointRepository, TaskRepository taskRepository, UserService userService) {
         this.taskPointRepository = taskPointRepository;
         this.taskRepository = taskRepository;
+        this.userService = userService;
     }
 
-    public TaskPointDTO saveTaskPoint(TaskPointDTO taskPointDTO) {
-        // Map and save Task entity
-        Task task = mapTaskDTOToEntity(taskPointDTO.getTask());
-        task = taskRepository.save(task);
-
-        // Map LatLong entity
-        LatLong latLong = new LatLong();
-        latLong.setLatitude(taskPointDTO.getLocation().getLatitude());
-        latLong.setLongitude(taskPointDTO.getLocation().getLongitude());
-
-        // Create TaskPoint with saved IDs
-        TaskPoint taskPoint = new TaskPoint();
-        //taskPoint.setId(taskPointDTO.getId());
-        taskPoint.setTitle(taskPointDTO.getTitle());
-        taskPoint.setTaskId(task.getId());
-        taskPoint.setLocation(latLong);
-        taskPoint.setStatus(taskPointDTO.getStatus());
-        taskPoint.setAuthorUserId(taskPointDTO.getAuthorUserId());
-        taskPoint.setRating(taskPointDTO.getRating());
-
-        TaskPoint savedTaskPoint = taskPointRepository.save(taskPoint);
-        return mapToDTO(savedTaskPoint);
+    private void checkAdminPermission(){
+        User user = userService.getLoggedInUser();
+        if(user.getRole() != Role.ADMIN) throw new ResponseStatusException(HttpStatus.FORBIDDEN);
     }
 
-    private TaskPointDTO mapToDTO(TaskPoint taskPoint) {
-        TaskPointDTO dto = new TaskPointDTO();
-        dto.setId(taskPoint.getId());
-        dto.setTitle(taskPoint.getTitle());
-        dto.setStatus(taskPoint.getStatus());
-        dto.setRating(taskPoint.getRating());
-        dto.setAuthorUserId(taskPoint.getAuthorUserId());
-        dto.setLocation(taskPoint.getLocation());
-        dto.setTask(getTaskById(taskPoint.getTaskId()));
-        return dto;
+    private Long getLoggedInUserId(){
+        User user = userService.getLoggedInUser();
+        Long userId = user.getId();
+        if(userId == null) throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR);
+        return userId;
     }
 
     private TaskDTO getTaskById(Long taskId) {
@@ -76,11 +57,64 @@ public class TaskPointService {
     }
 
     public TaskPointDTO updateStatus(Long id, TaskStatus status) {
+
+        checkAdminPermission();
+
         TaskPoint taskPoint = taskPointRepository.findById(id)
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "TaskPoint not found"));
         taskPoint.setStatus(status);
         TaskPoint updatedTaskPoint = taskPointRepository.save(taskPoint);
         return mapToDTO(updatedTaskPoint);
+    }
+
+    public void deleteTaskPoint(Long id) {
+
+        checkAdminPermission();
+
+        TaskPoint taskPoint = taskPointRepository.findById(id)
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "TaskPoint not found"));
+
+        // Delete the corresponding Task
+        taskRepository.deleteById(taskPoint.getTaskId());
+
+        // Now delete the TaskPoint
+        taskPointRepository.deleteById(id);
+    }
+
+    public TaskPointDTO saveTaskPoint(TaskPointDTO taskPointDTO) {
+        // Map and save Task entity
+        Task task = mapTaskDTOToEntity(taskPointDTO.getTask());
+        task = taskRepository.save(task);
+
+        // Map LatLong entity
+        LatLong latLong = new LatLong();
+        latLong.setLatitude(taskPointDTO.getLocation().getLatitude());
+        latLong.setLongitude(taskPointDTO.getLocation().getLongitude());
+
+        // Create TaskPoint with saved IDs
+        TaskPoint taskPoint = new TaskPoint();
+        //taskPoint.setId(taskPointDTO.getId());
+        taskPoint.setTitle(taskPointDTO.getTitle());
+        taskPoint.setTaskId(task.getId());
+        taskPoint.setLocation(latLong);
+        taskPoint.setStatus(taskPointDTO.getStatus());
+        taskPoint.setAuthorUserId(getLoggedInUserId().toString());
+        taskPoint.setRating(taskPointDTO.getRating());
+
+        TaskPoint savedTaskPoint = taskPointRepository.save(taskPoint);
+        return mapToDTO(savedTaskPoint);
+    }
+
+    private TaskPointDTO mapToDTO(TaskPoint taskPoint) {
+        TaskPointDTO dto = new TaskPointDTO();
+        dto.setId(taskPoint.getId());
+        dto.setTitle(taskPoint.getTitle());
+        dto.setStatus(taskPoint.getStatus());
+        dto.setRating(taskPoint.getRating());
+        dto.setAuthorUserId(taskPoint.getAuthorUserId());
+        dto.setLocation(taskPoint.getLocation());
+        dto.setTask(getTaskById(taskPoint.getTaskId()));
+        return dto;
     }
 
     private Task mapTaskDTOToEntity(TaskDTO taskDTO) {
