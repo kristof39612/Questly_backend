@@ -2,9 +2,6 @@ package com.questly.questly_backend.model.TaskPoint;
 
 import com.questly.questly_backend.model.LatLong.LatLong;
 import com.questly.questly_backend.model.Task.*;
-import com.questly.questly_backend.model.User.Role;
-import com.questly.questly_backend.model.User.User;
-import com.questly.questly_backend.model.User.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
@@ -17,13 +14,11 @@ public class TaskPointService {
 
     private final TaskPointRepository taskPointRepository;
     private final TaskRepository taskRepository;
-    private final UserService userService;
 
     @Autowired
-    public TaskPointService(TaskPointRepository taskPointRepository, TaskRepository taskRepository, UserService userService) {
+    public TaskPointService(TaskPointRepository taskPointRepository, TaskRepository taskRepository) {
         this.taskPointRepository = taskPointRepository;
         this.taskRepository = taskRepository;
-        this.userService = userService;
     }
 
     public TaskPointDTO saveTaskPoint(TaskPointDTO taskPointDTO) {
@@ -81,9 +76,6 @@ public class TaskPointService {
     }
 
     public TaskPointDTO updateStatus(Long id, TaskStatus status) {
-        User user = userService.getLoggedInUser();
-        if(user.getRole() != Role.ADMIN) throw new ResponseStatusException(HttpStatus.FORBIDDEN);
-
         TaskPoint taskPoint = taskPointRepository.findById(id)
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "TaskPoint not found"));
         taskPoint.setStatus(status);
