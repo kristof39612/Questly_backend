@@ -25,6 +25,18 @@ public class TaskPointController {
         return ResponseEntity.ok(taskPointDTO);
     }
 
+    @PatchMapping("/{id}/approve")
+    public ResponseEntity<TaskPointDTO> approveTaskPoint(@PathVariable Long id) {
+        TaskPointDTO updatedTaskPoint = taskPointService.updateStatus(id, TaskStatus.APPROVED);
+        return ResponseEntity.ok(updatedTaskPoint);
+    }
+
+    @PatchMapping("/{id}/reject")
+    public ResponseEntity<TaskPointDTO> rejectTaskPoint(@PathVariable Long id) {
+        TaskPointDTO updatedTaskPoint = taskPointService.updateStatus(id, TaskStatus.REJECTED);
+        return ResponseEntity.ok(updatedTaskPoint);
+    }
+
     @GetMapping
     public ResponseEntity<List<TaskPointDTO>> getAllTaskPoints() {
         List<TaskPointDTO> taskPoints = taskPointService.getAllTaskPoints();

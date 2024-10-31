@@ -75,6 +75,14 @@ public class TaskPointService {
                 .toList();
     }
 
+    public TaskPointDTO updateStatus(Long id, TaskStatus status) {
+        TaskPoint taskPoint = taskPointRepository.findById(id)
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "TaskPoint not found"));
+        taskPoint.setStatus(status);
+        TaskPoint updatedTaskPoint = taskPointRepository.save(taskPoint);
+        return mapToDTO(updatedTaskPoint);
+    }
+
     private Task mapTaskDTOToEntity(TaskDTO taskDTO) {
         Task task;
 
@@ -103,7 +111,6 @@ public class TaskPointService {
 
         return task;
     }
-
 
     private TaskDTO mapTaskEntityToDTO(Task task) {
         switch (task) {
