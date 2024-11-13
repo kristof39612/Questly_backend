@@ -243,7 +243,7 @@ ResponseBody:<br>
 ### Start selected TaskPoint
 PATCH<br>
 /user/startTask<br><br>
-ResponseBody:<br>
+RequestBody:<br>
 ```json
 {
   "taskPointId": 10
