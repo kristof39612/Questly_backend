@@ -45,4 +45,10 @@ public class UserService {
     }
 
     public void deletedCoach(){}
+
+    public void setTask(Long taskPointId) {
+        User user = getLoggedInUser();
+        user.setCurrentTaskPointId(taskPointId);
+        userRepository.save(user);
+    }
 }

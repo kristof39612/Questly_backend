@@ -1,5 +1,6 @@
 package com.questly.questly_backend.model.LogEntry;
 
+import com.questly.questly_backend.model.User.CompleteTaskDTO;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;

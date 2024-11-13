@@ -1,4 +1,4 @@
-package com.questly.questly_backend.model.LogEntry;
+package com.questly.questly_backend.model.User;
 
 import lombok.Data;
 import lombok.NoArgsConstructor;
