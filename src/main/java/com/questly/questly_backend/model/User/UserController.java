@@ -41,6 +41,8 @@ public class UserController {
 
             LogEntryDTO savedLogEntry = logEntryService.saveLogEntry(logEntry);
 
+            userService.setTask(null);
+
             return ResponseEntity.status(HttpStatus.CREATED).body(savedLogEntry);
 
         } catch (IOException e) {

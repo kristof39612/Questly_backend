@@ -5,6 +5,8 @@ import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 
+import java.util.List;
+
 @Service
 public class UserService {
 
@@ -27,6 +29,10 @@ public class UserService {
             return ((User)principal).getEmail();
         }
         return principal.toString();
+    }
+
+    public List<User> getAllUsers() {
+        return userRepository.findAll();
     }
 
     public User getLoggedInUser(){
