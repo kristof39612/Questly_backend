@@ -9,6 +9,7 @@ import org.springframework.web.server.ResponseStatusException;
 
 import java.io.IOException;
 import java.time.LocalDateTime;
+import java.util.List;
 
 @RestController
 @RequestMapping("/user")
@@ -70,5 +71,13 @@ public class UserController {
         StartTaskDTO taskDTO = new StartTaskDTO(user.getCurrentTaskPointId());
         return taskDTO.getTaskPointId() != null ? ResponseEntity.ok().body(taskDTO) : ResponseEntity.status(HttpStatus.NOT_FOUND).build();
     }
+
+    @GetMapping("/getLogEntries")
+    public ResponseEntity<List<LogEntryDTO>> getUserLogEntries() {
+        User user = userService.getLoggedInUser();
+        List<LogEntryDTO> entries = logEntryService.getUserLogEntries(user.getId());
+        return !entries.isEmpty() ? ResponseEntity.ok().body(entries) : ResponseEntity.status(HttpStatus.NOT_FOUND).build();
+    }
+
 }
 

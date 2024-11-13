@@ -44,8 +44,9 @@ public class LogEntryService {
         return mapToDTO(logEntryRepository.save(logEntry));
     }
 
-    public List<LogEntryDTO> getAllLogEntries() {
-        return logEntryRepository.findAll().stream()
+    public List<LogEntryDTO> getUserLogEntries(Long userId) {
+        List<LogEntry> logEntries = logEntryRepository.findByUserId(userId);
+        return logEntries.stream()
                 .map(this::mapToDTO)
                 .collect(Collectors.toList());
     }
