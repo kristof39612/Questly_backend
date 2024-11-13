@@ -5,6 +5,8 @@ import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 
+import java.util.List;
+
 @Service
 public class UserService {
 
@@ -29,6 +31,10 @@ public class UserService {
         return principal.toString();
     }
 
+    public List<User> getAllUsers() {
+        return userRepository.findAll();
+    }
+
     public User getLoggedInUser(){
         return userRepository.findByEmail(getEmailFromSecurityContext()).orElseThrow();
     }
@@ -36,13 +42,19 @@ public class UserService {
         return userRepository.save(user);
     }
 
-    public Integer getLoggedInUserId(){
+    public Long getLoggedInUserId(){
         return userRepository.findByEmail(getEmailFromSecurityContext()).orElseThrow().getId();
     }
 
-    public User getClientById(Integer id){
+    public User getClientById(Long id){
         return userRepository.findById(id).orElseThrow();
     }
 
     public void deletedCoach(){}
+
+    public void setTask(Long taskPointId) {
+        User user = getLoggedInUser();
+        user.setCurrentTaskPointId(taskPointId);
+        userRepository.save(user);
+    }
 }
