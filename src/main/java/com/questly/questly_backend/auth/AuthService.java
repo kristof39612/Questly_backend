@@ -33,6 +33,7 @@ public class AuthService {
         User user = new User();
         user.setEmail(request.getEmail());
         user.setPassword(passwordEncoder.encode(request.getPassword()));
+        user.setCurrentTaskPointId(null);
         user.setRole(Role.USER);
         userRepository.save(user);
         String token = jwtService.generateToken(this.createExtraClaims(user),user);
