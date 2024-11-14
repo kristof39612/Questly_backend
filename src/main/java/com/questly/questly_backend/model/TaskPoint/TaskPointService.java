@@ -97,7 +97,7 @@ public class TaskPointService {
         taskPoint.setTitle(taskPointDTO.getTitle());
         taskPoint.setTaskId(task.getId());
         taskPoint.setLocation(latLong);
-        taskPoint.setStatus(taskPointDTO.getStatus());
+        taskPoint.setStatus(TaskStatus.PENDING);
         taskPoint.setAuthorUserId(getLoggedInUserId().toString());
         taskPoint.setRating(taskPointDTO.getRating());
 
