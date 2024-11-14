@@ -12,14 +12,17 @@ public class UserService {
 
     private final UserRepository userRepository;
 
-
     @Autowired
     public UserService(UserRepository userRepository) {
         this.userRepository = userRepository;
     }
 
-    public boolean userExists(String email){
+    public boolean userEmailExists(String email){
         return userRepository.findByEmail(email).isPresent();
+    }
+
+    public boolean userNameExists(String username){
+        return userRepository.findByUsername(username).isPresent();
     }
 
     public String getEmailFromSecurityContext(){

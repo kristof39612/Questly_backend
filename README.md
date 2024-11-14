@@ -32,7 +32,8 @@ RequestBody:<br>
 ```json
 {
   "email": "asd@asd.com",
-  "password": "asd"
+  "password": "asd",
+  "username": "username"
 }
 ```
 ResponseBody:<br>
@@ -313,7 +314,7 @@ GET<br>
 ResponseBody:<br>
 ```json
 {
-  "username": "asd@asd.com",
+  "username": "username",
   "points": 75
 }
 ```
@@ -324,15 +325,15 @@ ResponseBody:<br>
 ```json
 [
   {
-    "username": "admin@asd.com",
+    "username": "username1",
     "points": 175
   },
   {
-    "username": "asdasd@asd.com",
+    "username": "username2",
     "points": 75
   },
   {
-    "username": "asd@asd.com",
+    "username": "username3",
     "points": 0
   }
 ]

@@ -26,19 +26,23 @@ public class TaskPointService {
         this.userService = userService;
     }
 
+    public boolean checkIfTaskPointExists(Long taskPointId) {
+        return taskPointRepository.existsById(taskPointId);
+    }
+
     private void checkAdminPermission(){
         User user = userService.getLoggedInUser();
         if(user.getRole() != Role.ADMIN) throw new ResponseStatusException(HttpStatus.FORBIDDEN);
     }
 
-    private Long getLoggedInUserId(){
+    public Long getLoggedInUserId(){
         User user = userService.getLoggedInUser();
         Long userId = user.getId();
         if(userId == null) throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR);
         return userId;
     }
 
-    private TaskDTO getTaskById(Long taskId) {
+    public TaskDTO getTaskById(Long taskId) {
         Task task = taskRepository.findById(taskId)
                 .orElseThrow(() -> new RuntimeException("Task not found"));
         return mapTaskEntityToDTO(task);
@@ -97,7 +101,7 @@ public class TaskPointService {
         taskPoint.setTitle(taskPointDTO.getTitle());
         taskPoint.setTaskId(task.getId());
         taskPoint.setLocation(latLong);
-        taskPoint.setStatus(taskPointDTO.getStatus());
+        taskPoint.setStatus(TaskStatus.PENDING);
         taskPoint.setAuthorUserId(getLoggedInUserId().toString());
         taskPoint.setRating(taskPointDTO.getRating());
 
