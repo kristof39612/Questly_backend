@@ -1,5 +1,6 @@
 package com.questly.questly_backend.model.LogEntry;
 
+import com.questly.questly_backend.model.TaskPoint.TaskPointService;
 import com.questly.questly_backend.model.User.CompleteTaskDTO;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpHeaders;
@@ -17,10 +18,11 @@ import java.util.stream.Collectors;
 public class LogEntryService {
     private final LogEntryRepository logEntryRepository;
     private final PhotoRepository photoRepository;
+    private final TaskPointService taskPointService;
 
     @Autowired
-    public LogEntryService(LogEntryRepository logEntryRepository, PhotoRepository photoRepository) {
-
+    public LogEntryService(LogEntryRepository logEntryRepository, PhotoRepository photoRepository, TaskPointService taskPointService) {
+        this.taskPointService = taskPointService;
         this.logEntryRepository = logEntryRepository;
         this.photoRepository = photoRepository;
     }
@@ -53,6 +55,11 @@ public class LogEntryService {
 
     public List<LogEntryDTO> getUserLogEntries(Long userId) {
         List<LogEntry> logEntries = logEntryRepository.findByUserId(userId);
+        for (LogEntry logEntry : logEntries) {
+            if (!taskPointService.checkIfTaskPointExists(logEntry.getVisitedPointId())){
+                logEntryRepository.delete(logEntry);
+            }
+        }
         return logEntries.stream()
                 .map(this::mapToDTO)
                 .collect(Collectors.toList());

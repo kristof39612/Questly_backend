@@ -33,7 +33,10 @@ public class LeaderboardService {
         List<LogEntryDTO> userEntries = logEntryService.getUserLogEntries(userId);
         int points = 0;
         for (LogEntryDTO userEntry : userEntries) {
-            points += taskPointService.getTaskPointById(userEntry.getVisitedPointId()).getTask().getPointsForCompletion();
+            Long taskPointId = userEntry.getVisitedPointId();
+            if(taskPointService.checkIfTaskPointExists(taskPointId)) {
+                points += taskPointService.getTaskPointById(taskPointId).getTask().getPointsForCompletion();
+            }
         }
         UserPointsDTO userPointsDTO = new UserPointsDTO();
         userPointsDTO.setPoints(points);

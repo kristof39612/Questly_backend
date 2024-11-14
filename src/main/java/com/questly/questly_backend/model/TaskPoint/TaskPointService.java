@@ -26,6 +26,10 @@ public class TaskPointService {
         this.userService = userService;
     }
 
+    public boolean checkIfTaskPointExists(Long taskPointId) {
+        return taskPointRepository.existsById(taskPointId);
+    }
+
     private void checkAdminPermission(){
         User user = userService.getLoggedInUser();
         if(user.getRole() != Role.ADMIN) throw new ResponseStatusException(HttpStatus.FORBIDDEN);
