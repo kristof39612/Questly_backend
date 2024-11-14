@@ -1,6 +1,7 @@
 package com.questly.questly_backend.model.User;
 
 import com.questly.questly_backend.model.LogEntry.*;
+import com.questly.questly_backend.model.TaskPoint.TaskPointRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -15,11 +16,16 @@ import java.util.List;
 @RequestMapping("/user")
 public class UserController {
 
-    @Autowired
-    private LogEntryService logEntryService;
+    private final LogEntryService logEntryService;
+    private final TaskPointRepository taskPointRepository;
+    private final UserService userService;
 
     @Autowired
-    private UserService userService;
+    public UserController(UserService userService, LogEntryService logEntryService, TaskPointRepository taskPointRepository) {
+        this.userService = userService;
+        this.logEntryService = logEntryService;
+        this.taskPointRepository = taskPointRepository;
+    }
 
     @PostMapping("/completeTask")
     public ResponseEntity<LogEntryDTO> completeTask(@ModelAttribute CompleteTaskDTO completeTaskDTO) {
@@ -57,7 +63,10 @@ public class UserController {
 
     @PatchMapping("/startTask")
     public ResponseEntity<Void> startTask(@RequestBody StartTaskDTO startTaskDTO) {
-        userService.setTask(startTaskDTO.getTaskPointId());
+        Long taskPointId = startTaskDTO.getTaskPointId();
+        if(!taskPointRepository.existsById(taskPointId)) throw new ResponseStatusException(HttpStatus.NOT_FOUND, "TaskPoint does not exist: " + taskPointId);
+        logEntryService.checkTaskPointCompletedByUser(userService.getLoggedInUserId(), taskPointId);
+        userService.setTask(taskPointId);
         return ResponseEntity.ok().build();
     }
 

@@ -39,6 +39,13 @@ public class LogEntryService {
         return new ResponseEntity<>(photo.getData(), headers, HttpStatus.OK);
     }
 
+    public void checkTaskPointCompletedByUser(Long userId, Long taskPointId) {
+        List<LogEntry> logEntries = logEntryRepository.findByUserId(userId);
+        for (LogEntry logEntry : logEntries) {
+            if (logEntry.getVisitedPointId().equals(taskPointId)) throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "User has already completed taskpoint: " + taskPointId);
+        }
+    }
+
     public LogEntryDTO saveLogEntry(LogEntry logEntry) {
 
         return mapToDTO(logEntryRepository.save(logEntry));

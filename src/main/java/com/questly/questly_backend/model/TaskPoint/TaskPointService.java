@@ -31,14 +31,14 @@ public class TaskPointService {
         if(user.getRole() != Role.ADMIN) throw new ResponseStatusException(HttpStatus.FORBIDDEN);
     }
 
-    private Long getLoggedInUserId(){
+    public Long getLoggedInUserId(){
         User user = userService.getLoggedInUser();
         Long userId = user.getId();
         if(userId == null) throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR);
         return userId;
     }
 
-    private TaskDTO getTaskById(Long taskId) {
+    public TaskDTO getTaskById(Long taskId) {
         Task task = taskRepository.findById(taskId)
                 .orElseThrow(() -> new RuntimeException("Task not found"));
         return mapTaskEntityToDTO(task);
