@@ -28,10 +28,14 @@ public class AuthService {
         if (emailTakenInClientOrCoach(request.getEmail())){
             return throwEmailTakenError();
         }
-
+        String username = request.getUsername();
+        if (username != null && usernameTakenInClientOrCoach(username)){
+            return throwUsernameTakenError();
+        }
 
         User user = new User();
         user.setEmail(request.getEmail());
+        user.setUsername(username);
         user.setPassword(passwordEncoder.encode(request.getPassword()));
         user.setCurrentTaskPointId(null);
         user.setRole(Role.USER);
@@ -40,7 +44,7 @@ public class AuthService {
         return AuthResponse.builder().token(token).build();
     }
 
-    public AuthResponse loginUser(LoginRequest request) {
+    public AuthResponse loginUserEmail(LoginRequest request) {
         authManager.authenticate(
                 new UsernamePasswordAuthenticationToken(
                         request.getEmail(),
@@ -60,10 +64,18 @@ public class AuthService {
     }
 
     public boolean emailTakenInClientOrCoach(String email){
-        return userService.userExists(email);
+        return userService.userEmailExists(email);
+    }
+
+    public boolean usernameTakenInClientOrCoach(String username){
+        return userService.userNameExists(username);
     }
 
     public AuthResponse throwEmailTakenError(){
         return AuthResponse.builder().errorMessage("Email already taken").build();
+    }
+
+    public AuthResponse throwUsernameTakenError(){
+        return AuthResponse.builder().errorMessage("Username already taken").build();
     }
 }

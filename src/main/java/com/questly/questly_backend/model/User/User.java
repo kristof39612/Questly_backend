@@ -29,6 +29,8 @@ public class User implements UserDetails {
 
     private Long currentTaskPointId;
 
+    private String username;
+
 
     @Enumerated(EnumType.STRING)
     @JsonIgnore
@@ -41,8 +43,9 @@ public class User implements UserDetails {
 
     @Override
     public String getUsername() {
-        return email;
+        return username == null ? email : username;
     }
+
 
     @Override
     public boolean isAccountNonExpired() {
