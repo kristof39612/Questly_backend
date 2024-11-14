@@ -60,6 +60,15 @@ ResponseBody:<br>
   "errorMessage": null
 }
 ```
+### Get user role
+GET<br>
+/user/role<br><br>
+ResponseBody:<br>
+```
+{
+  ADMIN or USER
+}
+```
 ## TaskPoints
 
 ### Get All TaskPoints
