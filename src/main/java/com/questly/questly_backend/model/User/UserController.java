@@ -90,5 +90,9 @@ public class UserController {
         return !entries.isEmpty() ? ResponseEntity.ok().body(entries) : ResponseEntity.status(HttpStatus.NOT_FOUND).build();
     }
 
+    @GetMapping("/role")
+    public ResponseEntity<String> getUserRole() {
+        return ResponseEntity.ok(userService.getLoggedInUser().getRole().toString());
+    }
 }
 
