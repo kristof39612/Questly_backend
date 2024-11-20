@@ -94,5 +94,10 @@ public class UserController {
     public ResponseEntity<String> getUserRole() {
         return ResponseEntity.ok(userService.getLoggedInUser().getRole().toString());
     }
+
+    @GetMapping("/userID")
+    public ResponseEntity<String> getUserID() {
+        return ResponseEntity.ok(userService.getLoggedInUserId().toString());
+    }
 }
 
