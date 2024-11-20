@@ -69,6 +69,13 @@ ResponseBody:<br>
   ADMIN or USER
 }
 ```
+### Get user ID
+GET<br>
+/user/userID<br><br>
+ResponseBody:<br>
+```
+id (eg. 202)
+```
 ## TaskPoints
 
 ### Get All TaskPoints
