@@ -11,11 +11,16 @@ import org.springframework.security.authentication.UsernamePasswordAuthenticatio
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
+import javax.crypto.SecretKey;
+import javax.crypto.spec.IvParameterSpec;
+import javax.crypto.spec.SecretKeySpec;
+import java.util.Base64;
 import java.util.HashMap;
 
 @Service
 @RequiredArgsConstructor
 public class AuthService {
+
     private final PasswordEncoder passwordEncoder;
 
     private final JwtService jwtService;
@@ -32,6 +37,22 @@ public class AuthService {
         if (username != null && usernameTakenInClientOrCoach(username)){
             return throwUsernameTakenError();
         }
+        try {
+            String input = request.getPassword();
+            //SecretKey key = DecryptUtility.generateKey(128);
+            byte[] decodedKey = Base64.getDecoder().decode("pQjbshoJGc3EAkRaa5FXsA==");
+            SecretKey key = new SecretKeySpec(decodedKey, 0, decodedKey.length, "AES");
+            byte[] iv = DecryptUtility.readIV();
+            String algorithm = "AES/CBC/PKCS5Padding";
+            //IvParameterSpec ivParameterSpec = DecryptUtility.generateIv();
+            //String cipherText = DecryptUtility.encrypt(algorithm, input, key, new IvParameterSpec(iv));
+            //String plainText = DecryptUtility.decrypt(algorithm, cipherText, key, new IvParameterSpec(iv));
+            String plainText = DecryptUtility.decrypt(algorithm, input, key, new IvParameterSpec(iv));
+            System.out.println(plainText);
+        }catch (Exception e){
+            System.out.println("Error in the decryption of password");;
+        }
+
 
         User user = new User();
         user.setEmail(request.getEmail());
