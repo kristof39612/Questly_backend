@@ -66,9 +66,10 @@ GET<br>
 ResponseBody:<br>
 ```
 {
-  ADMIN or USER
+  0 or 1
 }
 ```
+*0 if user is USER  -- 1 if user is ADMIN*
 ### Get user ID
 GET<br>
 /user/userID<br><br>
