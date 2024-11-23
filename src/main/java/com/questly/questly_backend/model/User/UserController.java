@@ -92,7 +92,10 @@ public class UserController {
 
     @GetMapping("/role")
     public ResponseEntity<String> getUserRole() {
-        return ResponseEntity.ok(userService.getLoggedInUser().getRole().toString());
+        String role = userService.getLoggedInUser().getRole().toString();
+        int roleInt = 0;
+        if(role.equals("ADMIN")) roleInt = 1;
+        return ResponseEntity.ok(Integer.toString(roleInt));
     }
 
     @GetMapping("/userID")

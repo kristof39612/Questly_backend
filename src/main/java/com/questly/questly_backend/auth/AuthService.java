@@ -11,11 +11,16 @@ import org.springframework.security.authentication.UsernamePasswordAuthenticatio
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
+import javax.crypto.SecretKey;
+import javax.crypto.spec.IvParameterSpec;
+import javax.crypto.spec.SecretKeySpec;
+import java.util.Base64;
 import java.util.HashMap;
 
 @Service
 @RequiredArgsConstructor
 public class AuthService {
+
     private final PasswordEncoder passwordEncoder;
 
     private final JwtService jwtService;
@@ -32,16 +37,31 @@ public class AuthService {
         if (username != null && usernameTakenInClientOrCoach(username)){
             return throwUsernameTakenError();
         }
+        try {
+            String input = request.getPassword();
+            String secretKey = "pQjbshoJGc3EAkRaa5FXsA==";
+            byte[] decodedKey = Base64.getDecoder().decode(secretKey);
+            SecretKey key = new SecretKeySpec(decodedKey, 0, decodedKey.length, "AES");
+            byte[] iv = DecryptUtility.readIV();
+            String algorithm = "AES/CBC/PKCS5Padding";
+            String password = DecryptUtility.decrypt(algorithm, input, key, new IvParameterSpec(iv));
 
-        User user = new User();
-        user.setEmail(request.getEmail());
-        user.setUsername(username);
-        user.setPassword(passwordEncoder.encode(request.getPassword()));
-        user.setCurrentTaskPointId(null);
-        user.setRole(Role.USER);
-        userRepository.save(user);
-        String token = jwtService.generateToken(this.createExtraClaims(user),user);
-        return AuthResponse.builder().token(token).build();
+            User user = new User();
+            user.setEmail(request.getEmail());
+            user.setUsername(username);
+            user.setPassword(passwordEncoder.encode(password));
+            user.setCurrentTaskPointId(null);
+            user.setRole(Role.USER);
+            userRepository.save(user);
+            String token = jwtService.generateToken(this.createExtraClaims(user),user);
+            return AuthResponse.builder().token(token).build();
+        }catch (Exception e){
+            System.out.println("Error in the decryption of password");
+            return throwUsernameTakenError();
+        }
+
+
+
     }
 
     public AuthResponse loginUserEmail(LoginRequest request) {
