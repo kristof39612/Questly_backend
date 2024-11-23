@@ -28,6 +28,8 @@ public class AuthService {
     private final UserRepository userRepository;
     private final UserService userService;
 
+    private final String secretKey = "pQjbshoJGc3EAkRaa5FXsA==";
+
 
     public AuthResponse registerUser(RegisterRequest request) {
         if (emailTakenInClientOrCoach(request.getEmail())){
@@ -38,18 +40,10 @@ public class AuthService {
             return throwUsernameTakenError();
         }
         try {
-            String input = request.getPassword();
-            String secretKey = "pQjbshoJGc3EAkRaa5FXsA==";
-            byte[] decodedKey = Base64.getDecoder().decode(secretKey);
-            SecretKey key = new SecretKeySpec(decodedKey, 0, decodedKey.length, "AES");
-            byte[] iv = DecryptUtility.readIV();
-            String algorithm = "AES/CBC/PKCS5Padding";
-            String password = DecryptUtility.decrypt(algorithm, input, key, new IvParameterSpec(iv));
-
             User user = new User();
             user.setEmail(request.getEmail());
             user.setUsername(username);
-            user.setPassword(passwordEncoder.encode(password));
+            user.setPassword(passwordEncoder.encode(decodePassword(request.getPassword())));
             user.setCurrentTaskPointId(null);
             user.setRole(Role.USER);
             userRepository.save(user);
@@ -65,15 +59,20 @@ public class AuthService {
     }
 
     public AuthResponse loginUserEmail(LoginRequest request) {
-        authManager.authenticate(
-                new UsernamePasswordAuthenticationToken(
-                        request.getEmail(),
-                        request.getPassword()
-                )
-        );
-        User client = userRepository.findByEmail(request.getEmail()).orElseThrow();
-        String token = jwtService.generateToken(this.createExtraClaims(client),client);
-        return AuthResponse.builder().token(token).build();
+        try {
+            authManager.authenticate(
+                    new UsernamePasswordAuthenticationToken(
+                            request.getEmail(),
+                            decodePassword(request.getPassword())
+                    )
+            );
+            User client = userRepository.findByEmail(request.getEmail()).orElseThrow();
+            String token = jwtService.generateToken(this.createExtraClaims(client),client);
+            return AuthResponse.builder().token(token).build();
+        }catch (Exception e){
+            return throwBadCredentialsError();
+        }
+
     }
 
     public HashMap<String,String>createExtraClaims(User user){
@@ -81,6 +80,14 @@ public class AuthService {
         claims.put("role",user.getRole().toString());
         claims.put("email",user.getEmail());
         return claims;
+    }
+
+    private String decodePassword(String requestPassword) throws Exception{
+        byte[] decodedKey = Base64.getDecoder().decode(secretKey);
+        SecretKey key = new SecretKeySpec(decodedKey, 0, decodedKey.length, "AES");
+        byte[] iv = DecryptUtility.readIV();
+        String algorithm = "AES/CBC/PKCS5Padding";
+        return DecryptUtility.decrypt(algorithm, requestPassword, key, new IvParameterSpec(iv));
     }
 
     public boolean emailTakenInClientOrCoach(String email){
@@ -97,5 +104,9 @@ public class AuthService {
 
     public AuthResponse throwUsernameTakenError(){
         return AuthResponse.builder().errorMessage("Username already taken").build();
+    }
+
+    public AuthResponse throwBadCredentialsError(){
+        return AuthResponse.builder().errorMessage("Bad credentials").build();
     }
 }
