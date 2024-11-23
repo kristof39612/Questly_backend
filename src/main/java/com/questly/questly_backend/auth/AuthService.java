@@ -39,30 +39,29 @@ public class AuthService {
         }
         try {
             String input = request.getPassword();
-            //SecretKey key = DecryptUtility.generateKey(128);
-            byte[] decodedKey = Base64.getDecoder().decode("pQjbshoJGc3EAkRaa5FXsA==");
+            String secretKey = "pQjbshoJGc3EAkRaa5FXsA==";
+            byte[] decodedKey = Base64.getDecoder().decode(secretKey);
             SecretKey key = new SecretKeySpec(decodedKey, 0, decodedKey.length, "AES");
             byte[] iv = DecryptUtility.readIV();
             String algorithm = "AES/CBC/PKCS5Padding";
-            //IvParameterSpec ivParameterSpec = DecryptUtility.generateIv();
-            //String cipherText = DecryptUtility.encrypt(algorithm, input, key, new IvParameterSpec(iv));
-            //String plainText = DecryptUtility.decrypt(algorithm, cipherText, key, new IvParameterSpec(iv));
-            String plainText = DecryptUtility.decrypt(algorithm, input, key, new IvParameterSpec(iv));
-            System.out.println(plainText);
+            String password = DecryptUtility.decrypt(algorithm, input, key, new IvParameterSpec(iv));
+
+            User user = new User();
+            user.setEmail(request.getEmail());
+            user.setUsername(username);
+            user.setPassword(passwordEncoder.encode(password));
+            user.setCurrentTaskPointId(null);
+            user.setRole(Role.USER);
+            userRepository.save(user);
+            String token = jwtService.generateToken(this.createExtraClaims(user),user);
+            return AuthResponse.builder().token(token).build();
         }catch (Exception e){
-            System.out.println("Error in the decryption of password");;
+            System.out.println("Error in the decryption of password");
+            return throwUsernameTakenError();
         }
 
 
-        User user = new User();
-        user.setEmail(request.getEmail());
-        user.setUsername(username);
-        user.setPassword(passwordEncoder.encode(request.getPassword()));
-        user.setCurrentTaskPointId(null);
-        user.setRole(Role.USER);
-        userRepository.save(user);
-        String token = jwtService.generateToken(this.createExtraClaims(user),user);
-        return AuthResponse.builder().token(token).build();
+
     }
 
     public AuthResponse loginUserEmail(LoginRequest request) {
