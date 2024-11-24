@@ -48,6 +48,19 @@ public class LogEntryService {
         }
     }
 
+    public void updateAverageRatingForTaskPoint(Long taskPointId) {
+        List<LogEntry> logEntries = logEntryRepository.findByVisitedPointId(taskPointId);
+
+        if (logEntries.isEmpty()) return;
+
+        double averageRating = logEntries.stream()
+                .mapToInt(LogEntry::getGivenRating)
+                .average()
+                .orElse(0);
+
+        taskPointService.updateTaskPointRating(taskPointId, (float) averageRating);
+    }
+
     public LogEntryDTO saveLogEntry(LogEntry logEntry) {
 
         return mapToDTO(logEntryRepository.save(logEntry));

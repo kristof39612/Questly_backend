@@ -42,6 +42,14 @@ public class TaskPointService {
         return userId;
     }
 
+    public void updateTaskPointRating(Long taskPointId, float newRating) {
+        TaskPoint taskPoint = taskPointRepository.findById(taskPointId)
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "TaskPoint not found"));
+
+        taskPoint.setRating(newRating);
+        taskPointRepository.save(taskPoint);
+    }
+
     public TaskDTO getTaskById(Long taskId) {
         Task task = taskRepository.findById(taskId)
                 .orElseThrow(() -> new RuntimeException("Task not found"));
