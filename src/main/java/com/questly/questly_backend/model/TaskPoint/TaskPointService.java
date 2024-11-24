@@ -52,7 +52,7 @@ public class TaskPointService {
 
     public TaskDTO getTaskById(Long taskId) {
         Task task = taskRepository.findById(taskId)
-                .orElseThrow(() -> new RuntimeException("Task not found"));
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Task not found"));
         return mapTaskEntityToDTO(task);
     }
 
