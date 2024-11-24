@@ -49,6 +49,8 @@ public class UserController {
 
             userService.setTask(null);
 
+            logEntryService.updateAverageRatingForTaskPoint(savedLogEntry.getVisitedPointId());
+
             return ResponseEntity.status(HttpStatus.CREATED).body(savedLogEntry);
 
         } catch (IOException e) {
