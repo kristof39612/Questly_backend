@@ -50,8 +50,7 @@ public class AuthService {
             String token = jwtService.generateToken(this.createExtraClaims(user),user);
             return AuthResponse.builder().token(token).build();
         }catch (Exception e){
-            System.out.println("Error in the decryption of password");
-            return throwUsernameTakenError();
+            return throwCannotRegisterError();
         }
 
 
@@ -108,5 +107,9 @@ public class AuthService {
 
     public AuthResponse throwBadCredentialsError(){
         return AuthResponse.builder().errorMessage("Bad credentials").build();
+    }
+
+    public AuthResponse throwCannotRegisterError(){
+        return AuthResponse.builder().errorMessage("Cannot register user").build();
     }
 }
